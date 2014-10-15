@@ -1,0 +1,34 @@
+<h1>DB Viewer</h1>
+<h2>{{dbvc.currentDB}}</h2>
+  <div class="row table-header">
+    <div class="cell-id cell">
+        <p>ID</p>
+    </div>
+    <div class="cell-id cell" ng-show="docList[0].complete">
+        <p>Complete?</p>
+    </div>
+    <div class="cell">
+        <p>Title</p>
+    </div>
+    <div class="cell">
+        <p>Description</p>
+    </div>
+  </div>
+  <div class="row" ng-repeat="doc in docList track by $index">
+    <div class="cell-id">
+        {{doc.id || doc._id}}
+    </div>
+    <div class="cell" ng-show="doc.complete">
+        {{doc.complete}}
+    </div>
+    <div class="cell">
+        {{doc.name || doc.subject || doc.title || doc._id}}
+    </div>
+    <div class="cell">
+        {{doc.notes || doc.description || doc}}
+    </div>
+    <div style="display:none;">{{doc}}</div>
+  </div>
+<!-- <div id="dbdump">
+{{dbdump}}
+</div> -->

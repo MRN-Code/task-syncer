@@ -1,0 +1,7 @@
+#/usr/bin/env bash
+ 
+# git hook to run a command after `git pull`
+# Run `chmod +x post-merge` to make it executable then put it into `.git/hooks/`.
+echo ":: git post-merge begin"
+echo "`scripts/npm_updates.sh`"
+echo ":: git post-merge complete"

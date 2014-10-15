@@ -1,0 +1,116 @@
+#!/bin/sh
+#
+# for more examples, see:
+# chkconfig: 2345 95 05	
+# https://www.exratione.com/2013/02/nodejs-and-forever-as-a-service-simple-upstart-and-init-scripts-for-ubuntu/
+# OR
+# https://github.com/chovy/node-startup/blob/master/init.d/node-app
+
+### BEGIN INIT INFO
+# Provides:             my-application
+# Required-Start:       $syslog $remote_fs
+# Required-Stop:        $syslog $remote_fs
+# Should-Start:         $local_fs
+# Should-Stop:          $local_fs
+# Default-Start:        2 3 4 5
+# Default-Stop:         0 1 6
+# Short-Description:    node.js
+# Description:          start and stop node
+### END INIT INFO
+
+. /etc/rc.d/init.d/functions
+
+FOREVER="forever"
+FOREVER_LOG_FILE="/var/log/node/forever.log"
+FOREVER_OPTIONS="-m 500 --minUptime=5000 --spinSleepTime=2000 -a -l $FOREVER_LOG_FILE"
+NODE="node"
+ROOT_DIR="/var/www/task-syncer/"
+SERVER="server.js"
+NODE_LOG_FILE="/var/log/node/node.log"
+NODE_LOCK_FILE="/var/run/node.lock"
+FOREVER_LOCK_FILE="/var/run/forever.lock"
+
+do_start() {
+   if [ -f "$FOREVER_LOCK_FILE" -o -f "$NODE_LOCK_FILE" ]
+   then
+      echo "$SERVER is locked."
+      RETVAL=1
+   else
+      echo Starting $FOREVER and $NODE $SERVER:
+      echo "runuser -l niuser -c \"cd $ROOT_DIR && $FOREVER $FOREVER_OPTIONS $SERVER &\" && echo_success || echo_failure" >> $ROOT_DIR/startcmd
+      runuser -l niuser -c "cd $ROOT_DIR && $FOREVER $FOREVER_OPTIONS $SERVER &" && echo_success || echo_failure
+      RETVAL=$?
+      echo
+
+      if [ $RETVAL -eq 0 ]
+      then
+         NOW=`date`
+         echo $NOW -- start of forever >> $FOREVER_LOG_FILE
+         touch $NODE_LOCK_FILE
+         touch $FOREVER_LOCK_FILE
+      else
+         echo fail
+      fi
+   fi
+}
+
+do_stop() {
+   echo Stopping $FOREVER:
+   pid=`ps -aefw | grep $FOREVER | grep $SERVER | grep -v " grep " | awk '{print $2}'`
+   kill -9 $pid > /dev/null 2>&1 && echo_success || echo_failure
+   RETVAL=$?
+   echo
+   [ $RETVAL -eq 0 ] && rm -f $FOREVER_LOCK_FILE
+
+   echo Stopping $NODE $SERVER:
+   pid=`ps -aefw | grep $NODE | grep $SERVER | grep -v " grep " | awk '{print $2}'`
+   kill -9 $pid > /dev/null 2>&1 && echo_success || echo_failure
+   RETVAL=$?
+   echo
+   [ $RETVAL -eq 0 ] && rm -f $NODE_LOCK_FILE
+}
+
+do_status() {
+   f_status=`ps aux | grep $ROOT_DIR | grep $FOREVER | grep -v " grep "`
+   echo $FOREVER status:
+   if [ -n "$f_status" ]
+   then
+      echo "   ["running!"]"
+   else
+      echo "   ["not running"]"
+   fi
+
+   n_status=`ps aux | grep $ROOT_DIR | grep -v $FOREVER | grep -v " grep "`
+   echo $NODE status:
+   if [ -n "$n_status" ]
+   then
+      echo "   ["running!"]"
+   else
+      echo "   ["not running"]"
+   fi
+   echo
+}
+
+case "$1" in
+   start)
+      do_start
+      ;;
+   stop)
+      do_stop
+      ;;
+   status)
+      do_status
+      ;;
+   restart)
+      do_stop
+      do_start
+      ;;
+*)
+
+echo "Usage: $0 {start|stop|status|restart}"
+
+RETVAL=1
+
+esac
+
+exit $RETVAL

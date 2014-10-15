@@ -1,0 +1,10 @@
+startcmd
+node_modules/
+db/*
+log/*
+js/syncConfig.js
+js/syncConfigPrivate.js
+test.js
+testZenConnNAuth.js
+psuedocode*
+\DS_store\

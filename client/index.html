@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="devSyncApp">
+  <head>
+    <meta charset="utf-8">
+    <title>DevSync</title>
+    <link rel="stylesheet" type="text/css" href="./css/main.css">
+  </head>
+  <body class="flex-container main" ng-controller="AppController">
+  <modal-dialog ng-show="appc.modalServer()" width='65px' height='65px' no-click-close >
+        <img id="loading-brain" src="/img/brain.svg" alt="icon" /><!-- </img> -->
+  </modal-dialog>
+  <div class="flex-full-width flex-h-center">
+    <div id="header" class="box gray body-width">
+      <a href="#">
+        <img class="icon" src="/img/icon/home.svg" alt="icon" /><!-- </img> -->
+      </a>
+      <ul>
+        <li><a href="#" ng-click="sync()">Update</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="flex-full-width flex-h-center">
+    <div class="v-nav">
+      <div class="v-nav-item flexer box gray">
+        <ul>
+          <li><a href="#/db/az-config">Asana-Zen Config</a></li>
+          <li><a href="#/db/az-syncs">Asana-Zen Syncs</a></li>
+        </ul>
+      </div>
+
+      <div class="v-nav-item flexer box gray">
+        <ul>
+          <li><a href="#/db/zen-complete">Zen Complete</a></li>
+          <li><a href="#/db/zen-incomplete">Zen Incomplete</a></li>
+        </ul>
+      </div>
+
+      <div class="v-nav-item flexer box gray">
+        <ul>
+          <li><a href="#/db/asana-complete">Asana Complete</a></li>
+          <li><a href="#/db/asana-incomplete">Asana Incomplete</a></li>
+        </ul>
+      </div>
+      <div class="v-nav-item flexer box gray">
+        <ul>
+        <h3>Asana Tools</h3>
+          <ul>
+            <li><a href="#/remote/asana/users" ng-click="getAsanaUsers()">Show Asana Users</a></li>
+            <li><a href="#/remote/asana/projects" ng-click="getAsanaProjects()">Show Asana Projects</a></li>
+            <li><a href="#" ng-click="purgeAsanaWebTasks()">Purge Asana</a></li>
+          </ul>
+        <h3>Zen Tools</h3>
+          <ul>
+            <li><a href="#" ng-click="zenResetUpdateTime()">Reset Last Update Time</a></li>
+          </ul>
+        </ul>
+      </div>
+    </div>
+    <div class="body-width ivory box">
+      <div id="main-view" data-ng-view=""></div>
+    </div>
+    <div class="v-nav">
+      <!-- <div-pad>  </div-pad> -->
+    </div>
+  </div>
+
+    <!-- Angular Core -->
+    <script type="text/javascript" src="/js/angular.js"></script>
+    <script type="text/javascript" src="/js/angular-route.js"></script>
+
+    <!-- Plugins -->
+
+    <!-- Angular Config -->
+    <script type="text/javascript" src="/js/app.js"></script>
+    
+    <!-- Controllers -->  
+    <script type="text/javascript" src="/js/controllers/AppController.js" ></script>
+    <script type="text/javascript" src="/js/controllers/DBViewController.js" ></script>
+    <script type="text/javascript" src="/js/controllers/HomeController.js" ></script>
+  
+  </body>
+</html>

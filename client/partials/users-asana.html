@@ -1,0 +1,17 @@
+<h1>Asana Users</h1>
+  <div class="row table-header">
+    <div class="cell">
+        <p>Name</p>
+    </div>
+    <div class="cell">
+        <p>ID</p>
+    </div>
+  </div>
+  <div class="row" ng-repeat="user in usersAsana.data">
+    <div class="cell">
+        <p>{{user.name}}</p>
+    </div>
+    <div class="cell">
+        <p>{{user.id}}</p>
+    </div>
+  </div>
