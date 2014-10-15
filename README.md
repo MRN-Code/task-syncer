@@ -39,9 +39,10 @@ git submodule foreach "(git checkout master; git pull origin master; npm-update)
   *asana-api from npm does not have sufficient functionality.  Use the cdaringe/asana-api git for the asanai-api (included by default).
 
 ## Setup daemon
-* We use an init.d bash script to run node's forever pluggin, that keeps the server up.  Make sure to use intelligent logging and limit how many times forever can reboot itself!
-  * Consult NI Docs > Ubuntu Node Server Setup for full instructions!  Logging releated steps may be disregarded as task-syncer handles logging differently than listed.
-  * Our bash script is in scripts/node-server. `sudo cp scripts/node-server /etc/init.d/`
+* We use PM2 to manage our node processes.  Checkout PM2 to learn how to boot this app.  `pm2 start server.js` for the quick n dirty.
+    * DEPRECATED: We use an init.d bash script to run node's forever pluggin, that keeps the server up.  Make sure to use intelligent logging and limit how many times forever can reboot itself!
+      * Consult NI Docs > Ubuntu Node Server Setup for full instructions!  Logging releated steps may be disregarded as task-syncer handles logging differently than listed.
+      * Our bash script is in scripts/node-server. `sudo cp scripts/node-server /etc/init.d/`
 
 # Usage
 * run: `node server.js`
