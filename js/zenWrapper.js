@@ -163,7 +163,6 @@ ZenWrapper.prototype.getFullTicket = function(shortTicket, tScalar, fullTickets)
  * @param  {Number}   sinceTime - time since last update/fetch was successful
  * @param  {Function} cb
  * @return {Promise}
- * TODO:
  */
 ZenWrapper.prototype.getTickets = function(sinceTime, cb) {
     var _this = this,
@@ -171,7 +170,7 @@ ZenWrapper.prototype.getTickets = function(sinceTime, cb) {
         timeoutDur = 10000,
         ticketsFetched = false;
     if (sinceTime.time >= 0) {
-        //update earlier than we claimed to have last updated from as a failsafe
+        // update earlier than we claimed to have last updated from as a failsafe
         sinceTime = Math.floor(sinceTime.time/1000)-_this.pollingInterval*300;
         if(sinceTime < 0) sinceTime = 0;
     } else {
@@ -180,64 +179,67 @@ ZenWrapper.prototype.getTickets = function(sinceTime, cb) {
     _this.logger.info("Zen tickets last updated @: " +
         (new Date(sinceTime*1000)).toISOString() +
         ' (epoch:' + Math.floor(sinceTime/1000) + ')');
-    _this.logger.info("Fetching zen tickets (SLOW)");
 
-  return new Promise(function(resolve, reject) {
-    //output mode 1 - output recent items only
-    if (ticketExport) {
-      _this.client.tickets.export(sinceTime,
-        function getTicketsExportCB(err, statusList, body, responseList, resultList) {
-        if (err || !body) {
-          reject(err || new Error("ZenDesk API rendered a bogus response"));
-          return;
-        }
+    return new Promise(function ticketMode2Fetch(resolve, reject) {
+        //output mode 1 - output recent items only
+        if (ticketExport) {
+            _this.logger.debug("Fetching recent tickets only");
+            _this.client.tickets.export(sinceTime, function getTicketsExportCB(err, statusList, body, responseList, resultList) {
+                if (err || !body) {
+                    reject(err || new Error("ZenDesk API rendered a bogus response"));
+                    return;
+                }
 
-        if (!body.hasOwnProperty('results') || body.results.length === 0) {
-          resolve();
-          return;
-        }
+                if (!body.hasOwnProperty('results') || body.results.length === 0) {
+                    resolve(body.results);
+                    return;
+                }
 
-        process.stdout.write(" (new/updated ticket IDs) ");
-        // _this.dbTools.writeFile(JSON.stringify(body,null,2),'updatedTickets.log');
+                process.stdout.write(" (updated ticket IDs) ");
+                // _this.dbTools.writeFile(JSON.stringify(body,null,2),'updatedTickets.log');
 
-        //results do not have descripition, thus, we must fetch the unique ticket to get the description
-        var shortTickets = [],
-            fullTicketPs = [],
-            fullTickets = [];
-        if (body.results) shortTickets = body.results;
+                //results do not have descripition, thus, we must fetch the unique ticket to get the description
+                var shortTickets = [],
+                    fullTicketPs = [],
+                    fullTickets = [];
+                if (body.results) {
+                    shortTickets = body.results;
+                }
 
-        //map all of the short tickets to promises of receipt of full tickets
-        fullTicketPs = shortTickets.map(function getFullTicketPs(el,ndx,a){
-          return _this.getFullTicket(el, ndx + 1, fullTickets)
-            .then(function logTicket(ticket){
-              if (ticket && ticket.hasOwnProperty('id')) process.stdout.write(ticket.id + ", ");
-              else process.stdout.write("(deletedTik), ");
+                // map all of the short tickets to promises of receipt of full tickets
+                fullTicketPs = shortTickets.map(function getFullTicketPs(el,ndx,a){
+                    return _this.getFullTicket(el, ndx + 1, fullTickets)
+                        .then(function logTicket(ticket){
+                            if (ticket && ticket.hasOwnProperty('id')) process.stdout.write(ticket.id + ", ");
+                            else process.stdout.write("(deletedTik), ");
+                        });
+                });
+
+
+                // all full tickets fetched or failed to fetch
+                Promise.all(fullTicketPs)
+                    .then(function allFullTicketsFetchS(r){
+                        ticketsFetched = true;
+                        process.stdout.write('success (' + fullTickets.length + ')\n\n');
+                        resolve(fullTickets); // use when using tickets.export vs tickets.list
+                      })
+                    .catch(function allFullTicketsFetchF(r){
+                        throw new Error('Full tickets fetch failed');
+                    });
             });
-        });
-
-        //all full tickets fetched or failed to fetch
-        Promise.all(fullTicketPs)
-          .then(function allFullTicketsFetchS(r){
-            ticketsFetched = true;
-            process.stdout.write('success (' + fullTickets.length + ')\n\n');
-            resolve(fullTickets); // use when using tickets.export vs tickets.list
-          })
-          .catch(function allFullTicketsFetchF(r){
-            throw new Error('Full tickets fetch failed');
-          });
-      });
-    } else { //output mode 2 - output all items
-      _this.client.tickets.list(function (err, statusList, body, responseList, resultList) {
-        if (err) {
-          reject(err);
-          return;
+        } else { //output mode 2 - output all items
+            _this.logger.debug("Fetching full ticket list");
+            _this.client.tickets.list(function (err, statusList, body, responseList, resultList) {
+                if (err) {
+                    reject(err);
+                    return;
+                }
+                ticketsFetched = true;
+                process.stdout.write('success (' + body.length + ')');
+                resolve(body); // use when  tickets.list vs tickets.export
+            });
         }
-        ticketsFetched = true;
-        process.stdout.write('success (' + body.length + ')');
-        resolve(body); // use when  tickets.list vs tickets.export
-      });
-    }
-  });
+    });
 };
 
 

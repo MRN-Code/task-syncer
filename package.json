@@ -1,19 +1,19 @@
 {
-"name"         : "DevSync",
-"version"      : "0.0.1",
-"description"  : "Syncs multiple service's development tasks into a single service.  I.e., sync zendesk and git tasks with asana",
-"main"         : "server.js",
-"author"       : "C.Dieringer",
-"dependencies" : {
-  "cron"            : "*",
-  "express"         : "3.x",
-  "fs"              : "*",
-  "jsondiffpatch"   : "0.1.5",
-  "pouchdb"         : "2.1.1",
-  "node-zendesk"    : "*",
-  "rsvp"            : "*",
-  "use-strict"      : "*",
-  "utile"           : "*",
-  "winston"         : "*"
+  "name": "DevSync",
+  "version": "0.0.1",
+  "description": "Syncs multiple service's development tasks into a single service.  I.e., sync zendesk and git tasks with asana",
+  "main": "server.js",
+  "author": "C.Dieringer",
+  "dependencies": {
+    "cron": "*",
+    "express": "3.x",
+    "fs": "*",
+    "jsondiffpatch": "0.1.5",
+    "node-zendesk": "0.0.18",
+    "pouchdb": "*",
+    "rsvp": "*",
+    "use-strict": "*",
+    "utile": "*",
+    "winston": "*"
   }
 }

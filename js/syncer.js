@@ -15,9 +15,9 @@ var dbextender = new DBExtend();
  * @param {string} rootDir, required for log & db locations
  */
 function Syncer(){
-  this.serverRoot = process.cwd();
-  this._construct(staticConfig);
-  this.ready = this.init(); // Bind ready promise to init
+    this.serverRoot = process.cwd();
+    this._construct(staticConfig);
+    this.ready = this.init(); // Bind ready promise to init
 }
 
 
@@ -141,7 +141,7 @@ Syncer.prototype.init = function(webroot) {
             }),
             new (winston.transports.File)({
                 level: 'warn',
-                filename: _this.serverRoot + '/log/az-sync.log',
+                filename: _this.serverRoot + '/log/sync.log',
                 timestamp: true,
                 maxsize: 5243000,
                 maxFiles: 5
@@ -151,8 +151,8 @@ Syncer.prototype.init = function(webroot) {
 
     // Bring up databases, services, bind service object wrappers to Syncer
     if (_this.initDBs()) {
-        if(_this.service1name) _this[_this.service1name] = _this.service1;
-        if(_this.service2name) _this[_this.service2name] = _this.service2;
+        if (_this.service1name) _this[_this.service1name] = _this.service1;
+        if (_this.service2name) _this[_this.service2name] = _this.service2;
         commonResources = {
             map: _this.map,
             dbconfig: _this.dbs.config,
@@ -377,14 +377,15 @@ Syncer.prototype.processChanged = function(serv1, serv2) {
 
   return new Promise(function processChangedP(resolve,reject) {
     if (serv1) {
-      //Prepare list of changed service 1 items to update in service2 remote+locally
+      // Prepare list of changed service 1 items to update in service2 remote+locally
       var updatedServ1Items = _this.service1.get('updated');
       if (!updatedServ1Items.length) {
         _this.logger.info("(processChanged) [serv1] (0)");
         resolve(false);
         return;
       }
-      //For each srv1 update, gen new srv2 item to overwrite with
+
+      // For each srv1 update, gen new srv2 item to overwrite with
       updatedServ1Items = updatedServ1Items.map(function(srv1item,ndx,arry) {
         return new Promise(function updatedServ1ItemsP(resolve,reject){
           var srv1Generic = _this.service1.mapItem(srv1item,true),

@@ -28,9 +28,6 @@ var logger = new(winston.Logger)({
 var DBExtend = require('./js/dbextend.js'),
     Syncer = require('./js/syncer.js');
 
-// init logger
-
-
 // init server
 var app = express();
 app.set('title', 'SyncGUI');
@@ -57,7 +54,7 @@ app.get('/api/sync', function(req, res) {
                 res.end(":: Syncer Update Complete ::");
             })
             .catch (function syncF(r) {
-            res.end(":: Syncer Update Fail ::");
+                res.status(500).end(r);
         });
     });
 });
@@ -224,7 +221,7 @@ purgeDir = function(dirPath, rmFolder) {
  * @param  {*} r - response, items purged
  */
 function asanaPurgeSuccess(r) {
-  logger.verbose("%d service 2 items purged", r);
+    logger.verbose("%d service 2 items purged", r);
 }
 
 
@@ -233,7 +230,7 @@ function asanaPurgeSuccess(r) {
  * @param  {Error} e
  */
 function asanaPurgeFail(e) {
-  logger.warn('Purge failed', e);
+    logger.warn('Purge failed', e);
 }
 
 
@@ -247,13 +244,13 @@ function syncFail(e) {
   logger.error('(server) sync failed', e);
 }
 
-//Sync single zen asana syncer
-//nosync - turns off default autosync
-//purge2 - purges service 2 remote items
-//purgel - purges local items
-//sync - initiates an immediate sync
-//debug - changes logging level to debug, disables autosync
-//-v or verbose - changes logging level to verbose
+// Sync single zen asana syncer
+// nosync - turns off default autosync
+// purge2 - purges service 2 remote items
+// purgel - purges local items
+// sync - initiates an immediate sync
+// debug - changes logging level to debug, disables autosync
+// -v or verbose - changes logging level to verbose
 logger.debug('arguments:', args);
 while (args.length) {
     if (typeof args[0] === 'string') {
@@ -271,10 +268,10 @@ while (args.length) {
             logger.verbose("Generating new syncer to spawn new dbs...");
             syncer = new Syncer();
         } else if (args[0].match(/sync/i)) {
-            syncer.sync().
-            catch(syncFail);
+            syncer.sync().catch(syncFail);
         } else if (args[0].match(/debug/i)) {
             logger.transports.console.level = 'debug';
+            syncer._debug = true;
             syncer.logger.transports.console.level = 'debug';
             logger.debug("debug mode activated");
             syncer.disableAutoSync();
