@@ -1,3 +1,6 @@
+# deprecated
+please use other services such as zapier, slack integrations, etc etc
+
 task-syncer
 ===========
 
